@@ -1,0 +1,2 @@
+# Convert video to arrays
+python video_to_frames.py .\input\cell_4_0.mp4 output --fps 2 --width 128 --height 64 --preview --to-array
