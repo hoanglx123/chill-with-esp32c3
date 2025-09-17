@@ -45,10 +45,15 @@ struct SPI_OLED_SETTINGS_t
 
 struct I2C_OLED_SETTINGS_t 
 {
-    int16_t width    = 128;
-    int16_t height   = 64;
-    int8_t  pinSDA   = -1;   // Data/Command pin
-    int8_t  pinSCL   =  -1;  // Reset pin
+    /* Revolution information */
+    SCREEN_RESOLUTION_INFO_t screenResolution;
+    int16_t width  = 128;
+    int16_t height = 64;
+
+    /* I2C Pin Configurations */
+    int8_t pinSDA   = -1;
+    int8_t pinSCL   = -1;
+    int8_t pinRESET = -1;
 };
 
 class IDisplayController

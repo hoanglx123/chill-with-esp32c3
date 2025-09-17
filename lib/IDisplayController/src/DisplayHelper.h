@@ -2,6 +2,7 @@
 
 #include "IDisplayController.h"
 #include "impl/SSD1306OledSPIController.h"
+#include "impl/SSD1306OledI2CController.h"
 
 struct DISPLAY_SETTING_t
 {
@@ -15,14 +16,20 @@ public:
     static IDisplayController* createDisplayController(const SCREEN_TYPE type, DISPLAY_SETTING_t settings)
     {
         switch (type) {
-            case SPI_OLED_128x64: {
+            case SPI_OLED_128x64: 
+            {
                 return new SSD1306OledSPIController(settings.spiSettings);
             }
 
             case I2C_OLED_128x64:
-                // Implement I2C OLED controller creation if needed
+            {
+                return new SSD1306OledI2CController(settings.i2cSettings);
+            }
+
             default:
+            {
                 return nullptr;
+            }
         }
     }
 };
