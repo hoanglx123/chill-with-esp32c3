@@ -4,14 +4,13 @@
 #include <DisplayHelper.h>
 #include "config.h"
 
-class DasaiMochi : public IBaseProgram
+class Testing : public IBaseProgram
 {
-private:
     enum ANIMATION_SPEED
     {
-        SPEED_FAST = 50,
+        SPEED_FAST   = 50,
         SPEED_MEDIUM = 100,
-        SPEED_SLOW = 200
+        SPEED_SLOW   = 200
     };
 
     enum ANIMATION_TYPE
@@ -21,8 +20,8 @@ private:
     };
 
 public:
-    DasaiMochi();
-    ~DasaiMochi() override = default;
+    Testing();
+    ~Testing() override = default;
 
     void initProgram() override;
     void runProgram() override;
@@ -32,15 +31,12 @@ private:
 
 private:
     IDisplayController* mDisplayController;
-    uint8_t mCurrentFrameIndex = 0;
-    ANIMATION_TYPE mAnimationType = ANIMATION_01;
+    ANIMATION_TYPE      mAnimationType     = ANIMATION_01;
+    uint8_t             mCurrentFrameIndex = 0;
     bool isToogle = false;
 
 private:
-    using BUFFER_FRAME = std::vector<uint8_t>;
+    using BUFFER_FRAME = std::vector<uint16_t>;
 
-    // 128x64 pixel bitmap for "Dasai Mochi" (black/white)
-    // std::vector<BUFFER_FRAME> PROGMEM mDasaiMochiBitmapType1;
-    // std::vector<BUFFER_FRAME> PROGMEM mDasaiMochiBitmapType2;
     PROGMEM std::vector<BUFFER_FRAME> mCurrentDasaiMochiBitmap;
 };

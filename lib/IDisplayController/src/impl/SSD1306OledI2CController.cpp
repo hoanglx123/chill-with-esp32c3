@@ -1,3 +1,5 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
 #include "SSD1306OledI2CController.h"  
 
 SSD1306OledI2CController::SSD1306OledI2CController(const I2C_OLED_SETTINGS_t& settings)

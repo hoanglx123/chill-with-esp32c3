@@ -1,15 +1,17 @@
+#include <SPI.h>
+#include <Adafruit_GFX.h>
 #include "SSD1306OledSPIController.h"  
 
 SSD1306OledSPIController::SSD1306OledSPIController(const SPI_OLED_SETTINGS_t& settings)
 {
-    mSPISettings = settings;
-    mDisplayController = Adafruit_SSD1306(mSPISettings.screenResolution.width, mSPISettings.screenResolution.height, &SPI, 
-                                            mSPISettings.pinDC, mSPISettings.pinRESET, mSPISettings.pinSS);
+    mSpiOledSettings = settings;
+    mDisplayController = Adafruit_SSD1306(mSpiOledSettings.screenResolution.width, mSpiOledSettings.screenResolution.height, &SPI, 
+                                            mSpiOledSettings.pinDC, mSpiOledSettings.pinRESET, mSpiOledSettings.pinSS);
 }
 
 void SSD1306OledSPIController::init()
 {
-    SPI.begin(mSPISettings.pinSCK, mSPISettings.pinMISO, mSPISettings.pinMOSI, mSPISettings.pinSS);
+    SPI.begin(mSpiOledSettings.pinSCK, mSpiOledSettings.pinMISO, mSpiOledSettings.pinMOSI, mSpiOledSettings.pinSS);
 
     if (!mDisplayController.begin(SSD1306_SWITCHCAPVCC)) 
     {

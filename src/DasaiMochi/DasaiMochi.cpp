@@ -2,25 +2,31 @@
 #include "DasaiMochi.h"
 
 // Auto-generated frames
-#include "frames_auto_generated.h"
+// #include "frames_auto_generated_01.h"
+// #include "frames_auto_generated_02.h"
+
+#define TOUCH_PIN 21
 
 DasaiMochi::DasaiMochi()
 {
     DISPLAY_SETTING_t settings;
-    settings.spiSettings.pinMOSI  = SPI_MOSI;
-    settings.spiSettings.pinMISO  = SPI_MISO;
-    settings.spiSettings.pinSCK   = SPI_SCK;
-    settings.spiSettings.pinSS    = SPI_SS;
-    settings.spiSettings.pinDC    = OLED_DC;
-    settings.spiSettings.pinRESET = OLED_RESET;
-    settings.spiSettings.screenResolution.width  = SCREEN_SIZE_CONST::WIDTH_128;
-    settings.spiSettings.screenResolution.height = SCREEN_SIZE_CONST::HEIGHT_64;
+    settings.spiOledSettings.pinMOSI  = SPI_MOSI;
+    settings.spiOledSettings.pinMISO  = SPI_MISO;
+    settings.spiOledSettings.pinSCK   = SPI_SCK;
+    settings.spiOledSettings.pinSS    = SPI_SS;
+    settings.spiOledSettings.pinDC    = OLED_DC;
+    settings.spiOledSettings.pinRESET = OLED_RESET;
+    settings.spiOledSettings.screenResolution.width  = SCREEN_SIZE_CONST::WIDTH_128;
+    settings.spiOledSettings.screenResolution.height = SCREEN_SIZE_CONST::HEIGHT_64;
 
     /* Initialize Display controller */
     mDisplayController = DisplayHelper::createDisplayController(SCREEN_TYPE::SPI_OLED_128x64, settings);
 
     /* Setup frames */
     setupFrames();
+
+    /* Setup touch sensor */
+    pinMode(TOUCH_PIN, INPUT);
 }
 
 void DasaiMochi::initProgram()
@@ -31,10 +37,20 @@ void DasaiMochi::initProgram()
 
 void DasaiMochi::runProgram()
 {
-    mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mDasaiMochiBitmap.size();
+    int touchState = digitalRead(TOUCH_PIN);
 
+    // if (touchState == HIGH)
+    // {
+    //     mCurrentDasaiMochiBitmap = all_frames_01;
+    // }
+    // else
+    // {
+    //     mCurrentDasaiMochiBitmap = all_frames_02;
+    // }
+
+    mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
     mDisplayController->clearDisplay();
-    mDisplayController->drawBitmap(0, 0, mDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
+    mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
     mDisplayController->display();
 
     // Small delay to control speed
@@ -43,5 +59,5 @@ void DasaiMochi::runProgram()
 
 void DasaiMochi::setupFrames()
 {
-    mDasaiMochiBitmap = all_frames;
+    // mCurrentDasaiMochiBitmap = all_frames_01;
 }

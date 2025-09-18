@@ -1,9 +1,6 @@
 #pragma once
 
-#include <SPI.h>
-#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
 #include "IDisplayController.h"  
 
 class SSD1306OledSPIController : public IDisplayController
@@ -25,15 +22,15 @@ public:
 
     virtual uint8_t getWidth() const override
     {
-        return mSPISettings.screenResolution.width;
+        return mSpiOledSettings.screenResolution.width;
     }
 
     virtual uint8_t getHeight() const override
     {
-        return mSPISettings.screenResolution.height;
+        return mSpiOledSettings.screenResolution.height;
     }
 
 private: 
     Adafruit_SSD1306    mDisplayController;
-    SPI_OLED_SETTINGS_t mSPISettings;
+    SPI_OLED_SETTINGS_t mSpiOledSettings;
 };

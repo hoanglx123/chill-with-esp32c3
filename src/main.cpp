@@ -1,10 +1,11 @@
 #include <IBaseProgram.h>
-#include "DasaiMochi/DasaiMochi.h"
+// #include "DasaiMochi/DasaiMochi.h"
+#include "Testing/Testing.h"
 
 IBaseProgram* currentProgram = nullptr;
 
 void setup() {
-    currentProgram = new DasaiMochi();
+    currentProgram = new Testing();
 
     /* Initialize program */
     if (currentProgram) {

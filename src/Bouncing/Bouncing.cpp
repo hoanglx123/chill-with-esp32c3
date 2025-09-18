@@ -19,14 +19,14 @@ static const std::vector<uint8_t> PROGMEM bmp2 {
 Bouncing::Bouncing()
 {
     DISPLAY_SETTING_t settings;
-    settings.spiSettings.pinMOSI  = SPI_MOSI;
-    settings.spiSettings.pinMISO  = SPI_MISO;
-    settings.spiSettings.pinSCK   = SPI_SCK;
-    settings.spiSettings.pinSS    = SPI_SS;
-    settings.spiSettings.pinDC    = OLED_DC;
-    settings.spiSettings.pinRESET = OLED_RESET;
-    settings.spiSettings.screenResolution.width  = SCREEN_SIZE_CONST::WIDTH_128;
-    settings.spiSettings.screenResolution.height = SCREEN_SIZE_CONST::HEIGHT_64;
+    settings.spiOledSettings.pinMOSI  = SPI_MOSI;
+    settings.spiOledSettings.pinMISO  = SPI_MISO;
+    settings.spiOledSettings.pinSCK   = SPI_SCK;
+    settings.spiOledSettings.pinSS    = SPI_SS;
+    settings.spiOledSettings.pinDC    = OLED_DC;
+    settings.spiOledSettings.pinRESET = OLED_RESET;
+    settings.spiOledSettings.screenResolution.width  = SCREEN_SIZE_CONST::WIDTH_128;
+    settings.spiOledSettings.screenResolution.height = SCREEN_SIZE_CONST::HEIGHT_64;
 
     mDisplayController = DisplayHelper::createDisplayController(SCREEN_TYPE::SPI_OLED_128x64, settings);
 }

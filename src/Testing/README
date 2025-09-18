@@ -1,0 +1,79 @@
+# DasaiMochi
+
+This project animates bitmap frames on an SSD1306 OLED display using an ESP32-C3 (Adafruit QT Py ESP32-C3). The animation frames are auto-generated and displayed in sequence.
+
+## Folder Structure
+
+- **src/DasaiMochi/**  
+  Main source code for DasaiMochi animation.
+  - `DasaiMochi.cpp` — Animation logic.
+  - `DasaiMochi.h` — Class header.
+  - `frames_auto_generated.h` — Auto-generated bitmap frames.
+
+- **scripts/**  
+  Python scripts for frame generation.
+  - `video_to_frames.py` — Converts video to SSD1306-ready arrays.
+
+## Wiring Diagram
+
+Wiring between ESP32-C3 and OLED 128x64 is defined in `config.h`.  
+Below is a typical SPI wiring diagram:
+
+| OLED Pin | ESP32-C3 Pin | Description      |
+|----------|--------------|------------------|
+| VCC      | 3V3          | Power            |
+| GND      | GND          | Ground           |
+| SCK      | SPI_SCK      | SPI Clock        |
+| MOSI     | SPI_MOSI     | SPI Data         |
+| RES      | OLED_RESET   | Reset            |
+| DC       | OLED_DC      | Data/Command     |
+| CS       | SPI_SS       | Chip Select      |
+
+```
+ESP32-C3         OLED 128x64
+---------        -----------
+3V3      ------> VCC
+GND      ------> GND
+SPI_SCK  ------> SCK
+SPI_MOSI ------> MOSI
+OLED_RESET ----> RES
+OLED_DC   ------> DC
+SPI_SS    ------> CS
+```
+
+Refer to your `config.h` for the exact pin numbers.
+
+## How It Works
+
+1. **Initialization:**  
+   Display controller is set up with SPI pins and screen resolution (128x64).
+
+2. **Frame Setup:**  
+   Animation frames are loaded from `frames_auto_generated.h`.
+
+3. **Animation Loop:**  
+   - `runProgram()` cycles through frames.
+   - Each frame is drawn and displayed.
+   - Delay controls animation speed.
+
+## Generating Frames
+
+Use `scripts/video_to_frames.py` to convert video frames to bitmap arrays for SSD1306.  
+Include the generated arrays in `frames_auto_generated.h`.
+
+## Requirements
+
+- ESP32-C3 (Adafruit QT Py ESP32-C3 recommended)
+- SSD1306 OLED display (128x64)
+- PlatformIO or Arduino IDE
+- Python 3 (for frame generation)
+
+## Usage
+
+1. Generate frames using the Python script.
+2. Build and upload firmware to ESP32-C3.
+3. OLED displays animated frames.
+
+## License
+
+See repository for license details.
