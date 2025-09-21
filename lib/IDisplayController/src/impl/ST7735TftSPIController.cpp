@@ -26,6 +26,10 @@ void ST7735TftSPIController::init()
 void ST7735TftSPIController::clearDisplay()
 {
     mDisplayController.fillScreen(ST7735_BLACK);
+
+    // Default settings after clear
+    this->setTextSize(1);
+    this->setTextColor(TEXT_COLOR::COLOR_WHITE);
 }
 
 void ST7735TftSPIController::display()
@@ -53,8 +57,30 @@ void ST7735TftSPIController::setTextSize(uint8_t s)
     mDisplayController.setTextSize(s);
 }
 
-void ST7735TftSPIController::setTextColor(uint16_t c)
+void ST7735TftSPIController::setTextColor(TEXT_COLOR color)
 {
+    uint16_t c;
+    switch (color)
+    {
+        case TEXT_COLOR::COLOR_WHITE:
+        {
+            c = ST7735_WHITE;
+            break;
+        }
+        
+        case TEXT_COLOR::COLOR_BLACK:
+        {
+            c = ST7735_BLACK;
+            break;
+        }
+
+        default:
+        {
+            c = ST7735_WHITE;
+            break;
+        }
+    }
+
     mDisplayController.setTextColor(c);
 }
 

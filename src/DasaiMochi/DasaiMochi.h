@@ -2,7 +2,6 @@
 
 #include <IBaseProgram.h>
 #include <DisplayHelper.h>
-#include "config.h"
 
 class DasaiMochi : public IBaseProgram
 {

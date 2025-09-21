@@ -24,6 +24,10 @@ void SSD1306OledI2CController::init()
 void SSD1306OledI2CController::clearDisplay()
 {
     mDisplayController.clearDisplay();
+
+    // Default settings after clear
+    this->setTextSize(1);
+    this->setTextColor(TEXT_COLOR::COLOR_WHITE);
 }
 
 void SSD1306OledI2CController::display()
@@ -46,8 +50,36 @@ void SSD1306OledI2CController::setTextSize(uint8_t s)
     mDisplayController.setTextSize(s);
 }
 
-void SSD1306OledI2CController::setTextColor(uint16_t c)
+void SSD1306OledI2CController::setTextColor(TEXT_COLOR color)
 {
+    uint16_t c;
+    switch (color)
+    {
+        case TEXT_COLOR::COLOR_WHITE:
+        {
+            c = SSD1306_WHITE;
+            break;
+        }
+        
+        case TEXT_COLOR::COLOR_BLACK:
+        {
+            c = SSD1306_BLACK;
+            break;
+        }
+
+        case TEXT_COLOR::COLOR_INVERSE:
+        {
+            c = SSD1306_INVERSE;
+            break;
+        }
+
+        default:
+        {
+            c = SSD1306_WHITE;
+            break;
+        }
+    }
+
     mDisplayController.setTextColor(c);
 }
 

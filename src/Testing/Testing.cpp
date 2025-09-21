@@ -27,7 +27,7 @@ void Testing::initProgram()
     mDisplayController->init();
     mDisplayController->clearDisplay();
 
-    mDisplayController->setTextColor(ST7735_WHITE);
+    mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
     mDisplayController->setTextSize(1);
     mDisplayController->setCursor(10, 30);
     mDisplayController->print("Hoang!");

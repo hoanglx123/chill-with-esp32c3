@@ -16,7 +16,7 @@ public:
     void drawBitmap(int16_t x, int16_t y, std::vector<uint8_t> bitmap, int16_t w, int16_t h, uint16_t color) override;
     void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) override;
     void setTextSize(uint8_t s) override;
-    void setTextColor(uint16_t c) override;
+    void setTextColor(TEXT_COLOR color) override;
     void setCursor(int16_t x, int16_t y) override;
     void print(const char* text) override;
 

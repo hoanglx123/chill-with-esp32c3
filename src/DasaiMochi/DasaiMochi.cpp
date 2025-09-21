@@ -1,5 +1,6 @@
 #include <vector>
 #include "DasaiMochi.h"
+#include "config.h"
 
 // Auto-generated frames
 // #include "frames_auto_generated_01.h"
@@ -33,28 +34,33 @@ void DasaiMochi::initProgram()
 {
     mDisplayController->init();
     mDisplayController->clearDisplay();
+    mDisplayController->setTextSize(2);
+    mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
+    mDisplayController->setCursor(0, 0);
+    mDisplayController->print("Hello");
+    mDisplayController->display();
 }
 
 void DasaiMochi::runProgram()
 {
-    int touchState = digitalRead(TOUCH_PIN);
+    // int touchState = digitalRead(TOUCH_PIN);
 
-    // if (touchState == HIGH)
-    // {
-    //     mCurrentDasaiMochiBitmap = all_frames_01;
-    // }
-    // else
-    // {
-    //     mCurrentDasaiMochiBitmap = all_frames_02;
-    // }
+    // // if (touchState == HIGH)
+    // // {
+    // //     mCurrentDasaiMochiBitmap = all_frames_01;
+    // // }
+    // // else
+    // // {
+    // //     mCurrentDasaiMochiBitmap = all_frames_02;
+    // // }
 
-    mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
-    mDisplayController->clearDisplay();
-    mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
-    mDisplayController->display();
+    // mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
+    // mDisplayController->clearDisplay();
+    // mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
+    // mDisplayController->display();
 
-    // Small delay to control speed
-    delay(100);  // 100ms
+    // // Small delay to control speed
+    // delay(100);  // 100ms
 }
 
 void DasaiMochi::setupFrames()

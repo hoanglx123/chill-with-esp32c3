@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <vector>
 
-enum SCREEN_TYPE 
+enum class SCREEN_TYPE : uint8_t 
 {
     SPI_OLED_128x64,
     I2C_OLED_128x64,
@@ -11,6 +11,13 @@ enum SCREEN_TYPE
 
     /* The last item */
     UNKNOWN_SCREEN
+};
+
+enum class TEXT_COLOR : uint_least8_t
+{
+    COLOR_WHITE = 0,
+    COLOR_BLACK,
+    COLOR_INVERSE
 };
 
 struct SCREEN_SIZE_CONST 
@@ -96,7 +103,7 @@ public:
     virtual void drawRGBBitmap(int16_t x, int16_t y, std::vector<uint16_t> bitmap, int16_t w, int16_t h) {};
     virtual void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) = 0;
     virtual void setTextSize(uint8_t s) = 0;
-    virtual void setTextColor(uint16_t c) = 0;
+    virtual void setTextColor(TEXT_COLOR color) = 0;
     virtual void setCursor(int16_t x, int16_t y) = 0;
     virtual void print(const char* text) = 0;
 

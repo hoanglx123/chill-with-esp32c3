@@ -19,17 +19,17 @@ public:
     {
         switch (type) 
         {
-            case SPI_OLED_128x64: 
+            case SCREEN_TYPE::SPI_OLED_128x64: 
             {
                 return new SSD1306OledSPIController(settings.spiOledSettings);
             }
 
-            case I2C_OLED_128x64:
+            case SCREEN_TYPE::I2C_OLED_128x64:
             {
                 return new SSD1306OledI2CController(settings.i2cSettings);
             }
             
-            case SPI_TFT_160x80: 
+            case SCREEN_TYPE::SPI_TFT_160x80: 
             {
                 return new ST7735TftSPIController(settings.spiTftSettings);
             }
