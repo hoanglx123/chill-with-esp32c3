@@ -8,14 +8,16 @@ void setup() {
     currentProgram = new DasaiMochi();
 
     /* Initialize program */
-    if (currentProgram) {
+    if (currentProgram) 
+    {
         currentProgram->initProgram();
     }
 }
 
 void loop() {
     /* Run program */
-    if (currentProgram) {
+    if (currentProgram) 
+    {
         currentProgram->runProgram();
     }
 }

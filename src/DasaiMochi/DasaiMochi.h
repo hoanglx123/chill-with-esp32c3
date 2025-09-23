@@ -2,6 +2,7 @@
 
 #include <IBaseProgram.h>
 #include <DisplayHelper.h>
+#include <TouchController.h>
 
 class DasaiMochi : public IBaseProgram
 {
@@ -28,12 +29,14 @@ public:
 
 private:
     void setupFrames();
+    void onTouchEvent(TouchController::TOUCH_GESTURE gesture);
 
 private:
     IDisplayController* mDisplayController;
-    uint8_t mCurrentFrameIndex = 0;
-    ANIMATION_TYPE mAnimationType = ANIMATION_01;
-    bool isToogle = false;
+    uint8_t             mCurrentFrameIndex = 0;
+    ANIMATION_TYPE      mAnimationType     = ANIMATION_01;
+
+    bool isChanged = false;
 
 private:
     using BUFFER_FRAME = std::vector<uint8_t>;

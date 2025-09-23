@@ -1,12 +1,10 @@
 #include <vector>
-#include "DasaiMochi.h"
 #include "config.h"
+#include "DasaiMochi.h"
 
 // Auto-generated frames
 // #include "frames_auto_generated_01.h"
 // #include "frames_auto_generated_02.h"
-
-#define TOUCH_PIN 21
 
 DasaiMochi::DasaiMochi()
 {
@@ -27,7 +25,11 @@ DasaiMochi::DasaiMochi()
     setupFrames();
 
     /* Setup touch sensor */
-    pinMode(TOUCH_PIN, INPUT);
+    TouchController::getInstance().initTouchPin(TOUCH_PIN);
+    TouchController::getInstance().registerTouchEvent([this](TouchController::TOUCH_GESTURE guester)
+    {
+        this->onTouchEvent(guester);
+    });
 }
 
 void DasaiMochi::initProgram()
@@ -66,4 +68,33 @@ void DasaiMochi::runProgram()
 void DasaiMochi::setupFrames()
 {
     // mCurrentDasaiMochiBitmap = all_frames_01;
+}
+
+void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
+{
+    switch (gesture)
+    {
+        case TouchController::TOUCH_GESTURE::SINGLE_TAP: 
+        {
+            mDisplayController->clearDisplay();
+            mDisplayController->setTextSize(2);
+            mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
+            mDisplayController->setCursor(0, 0);
+            mDisplayController->print("Hoang");
+            mDisplayController->display();
+            break;
+        }
+
+        case TouchController::TOUCH_GESTURE::DOUBLE_TAP:
+        {
+            mDisplayController->clearDisplay();
+            mDisplayController->setTextSize(2);
+            mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
+            mDisplayController->setCursor(0, 0);
+            mDisplayController->print("ABC");
+            mDisplayController->display();
+            break;
+        }
+
+    }
 }

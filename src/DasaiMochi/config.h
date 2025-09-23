@@ -10,3 +10,6 @@
 #define SPI_MISO    5
 #define SPI_MOSI    6
 #define SPI_SS      7
+
+/* Touch pin */
+#define TOUCH_PIN 21
