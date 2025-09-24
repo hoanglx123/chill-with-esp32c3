@@ -3,8 +3,8 @@
 #include "DasaiMochi.h"
 
 // Auto-generated frames
-// #include "frames_auto_generated_01.h"
-// #include "frames_auto_generated_02.h"
+#include "frames_auto_generated_wpgdt.h"
+#include "frames_auto_generated_ivxpi.h"
 
 DasaiMochi::DasaiMochi()
 {
@@ -45,24 +45,16 @@ void DasaiMochi::initProgram()
 
 void DasaiMochi::runProgram()
 {
-    // int touchState = digitalRead(TOUCH_PIN);
-
-    // // if (touchState == HIGH)
-    // // {
-    // //     mCurrentDasaiMochiBitmap = all_frames_01;
-    // // }
-    // // else
-    // // {
-    // //     mCurrentDasaiMochiBitmap = all_frames_02;
-    // // }
-
-    // mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
-    // mDisplayController->clearDisplay();
-    // mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
-    // mDisplayController->display();
-
-    // // Small delay to control speed
-    // delay(100);  // 100ms
+    if(mCurrentDasaiMochiBitmap.empty() == false)
+    {
+        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
+        mDisplayController->clearDisplay();
+        mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
+        mDisplayController->display();
+    
+        // Small delay to control speed
+        delay(100);  // 100ms
+    }
 }
 
 void DasaiMochi::setupFrames()
@@ -76,23 +68,15 @@ void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
     {
         case TouchController::TOUCH_GESTURE::SINGLE_TAP: 
         {
-            mDisplayController->clearDisplay();
-            mDisplayController->setTextSize(2);
-            mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
-            mDisplayController->setCursor(0, 0);
-            mDisplayController->print("Hoang");
-            mDisplayController->display();
+            mCurrentFrameIndex = 0;
+            mCurrentDasaiMochiBitmap = frame_ivxpi::all_frames;
             break;
         }
 
         case TouchController::TOUCH_GESTURE::DOUBLE_TAP:
         {
-            mDisplayController->clearDisplay();
-            mDisplayController->setTextSize(2);
-            mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
-            mDisplayController->setCursor(0, 0);
-            mDisplayController->print("ABC");
-            mDisplayController->display();
+            mCurrentFrameIndex = 0;
+            mCurrentDasaiMochiBitmap = frame_wpgdt::all_frames;
             break;
         }
 

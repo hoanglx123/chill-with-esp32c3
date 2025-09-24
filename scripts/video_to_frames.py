@@ -6,7 +6,29 @@ import sys
 import shutil
 import numpy as np
 
+from string import Template
 from pathlib import Path
+
+FRAME_CONTENT_TEMPLATE = Template("""
+// Auto-generated bitmaps for SSD1306
+                                  
+#include <vector>
+                                  
+namespace $namespace {
+
+/************************************/
+/* Buffer list                      */
+/************************************/                                  
+$buffer_list
+                                            
+/************************************/
+/* All buffer                       */
+/************************************/  
+$all_buffer_list
+                                                                    
+} /* End of namespace */
+                        
+""")
 
 # Custom parser to show full help on error
 class SmartFormatter(argparse.ArgumentDefaultsHelpFormatter):
@@ -94,32 +116,48 @@ class CommandHelper:
         return filename
 
     @staticmethod
-    def save_array(out_path, name, arr, width, height):
-        c_file = Path(out_path) / "frames_auto_generated.h"
-        mode = "a" if c_file.exists() else "w"
-        with open(c_file, mode) as f:
-            if mode == "w":
-                f.write("// Auto-generated bitmaps for SSD1306\n\n")
-                f.write("#include <vector>\n\n")
-            f.write(f"// Frame: {name} ({width}x{height})\n")
-            f.write(f"static const std::vector<uint8_t> {name} = {{\n")
-            for i, val in enumerate(arr):
-                if i % 16 == 0:
-                    f.write("    ")
-                f.write(f"0x{val:02X}, ")
-                if (i + 1) % 16 == 0:
-                    f.write("\n")
-            f.write("};\n\n")
+    def generate_buffer_array(name, arr, width, height):
+        content = f"// Frame: {name} ({width}x{height})\n"
+        content += f"static const std::vector<uint8_t> {name} = {{\n"
+
+        for i, val in enumerate(arr):
+            if i % 16 == 0:
+                content += "    "
+            content += f"0x{val:02X}, "
+            if (i + 1) % 16 == 0:
+                content += "\n"
+        content += "};"
+
+        return content
 
     @staticmethod
-    def save_index(out_path, frame_names):
-        c_file = Path(out_path) / "frames_auto_generated.h"
-        with open(c_file, "a") as f:
-            f.write("// List of all frame arrays\n")
-            f.write("static const std::vector<std::vector<uint8_t>> all_frames = {\n")
-            for name in frame_names:
-                f.write(f"    {name},\n")
-            f.write("};\n")
+    def generate_all_list(frame_names):
+        content = "// List of all frame arrays\n"
+        content += "static const std::vector<std::vector<uint8_t>> all_frames = {\n"
+
+        for name in frame_names:
+            content += f"    {name},\n"
+        content += "};"
+
+        return content
+
+    @staticmethod
+    def save_file(out_path, buffer_array, buffer_list):
+        random_name = ""
+        for i in range(5):
+            random_name += chr(ord('a') + np.random.randint(0, 26))
+
+        c_file = Path(out_path) / f"frames_auto_generated_{random_name}.h"
+
+        # Generate content
+        content = FRAME_CONTENT_TEMPLATE.substitute(
+            namespace= f"frame_{random_name}",
+            buffer_list="\n\n".join(buffer_array),
+            all_buffer_list=buffer_list,
+        )
+
+        with open(c_file, "w") as f:
+            f.write(content)
 
     # ------------------------------
     # Main extractor
@@ -141,6 +179,7 @@ class CommandHelper:
 
         frame_count, saved_count = 0, 0
         frame_names = []
+        buffer_array = []
 
         while True:
             ret, frame = cap.read()
@@ -161,19 +200,19 @@ class CommandHelper:
                 if to_array:
                     arr = CommandHelper.frame_to_array(binary)
                     array_name = f"frame_{saved_count:05d}_bitmap"
-                    CommandHelper.save_array(out_path, array_name, arr, width, height)
+                    buffer_array.append(CommandHelper.generate_buffer_array(array_name, arr, width, height))
                     frame_names.append(array_name)
 
                 saved_count += 1
 
             frame_count += 1
 
+        # Save file
+        CommandHelper.save_file(out_path, buffer_array, CommandHelper.generate_all_list(frame_names))
+
         cap.release()
         if preview:
             cv2.destroyAllWindows()
-
-        if to_array and frame_names:
-            CommandHelper.save_index(out_path, frame_names)
 
         print(f"✅ Done: {saved_count} frames processed in '{out_path}'")
 

@@ -41,8 +41,5 @@ private:
 private:
     using BUFFER_FRAME = std::vector<uint8_t>;
 
-    // 128x64 pixel bitmap for "Dasai Mochi" (black/white)
-    // std::vector<BUFFER_FRAME> PROGMEM mDasaiMochiBitmapType1;
-    // std::vector<BUFFER_FRAME> PROGMEM mDasaiMochiBitmapType2;
     PROGMEM std::vector<BUFFER_FRAME> mCurrentDasaiMochiBitmap;
 };
