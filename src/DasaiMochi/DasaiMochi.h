@@ -3,6 +3,7 @@
 #include <IBaseProgram.h>
 #include <DisplayHelper.h>
 #include <TouchController.h>
+#include <TimerController.h>
 
 class DasaiMochi : public IBaseProgram
 {
@@ -28,8 +29,8 @@ public:
     void runProgram() override;
 
 private:
-    void setupFrames();
     void onTouchEvent(TouchController::TOUCH_GESTURE gesture);
+    void onTimerTimeout(TimerController::TIMER_ID timerId);
 
 private:
     IDisplayController* mDisplayController;

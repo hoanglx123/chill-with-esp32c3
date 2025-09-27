@@ -21,19 +21,23 @@ DasaiMochi::DasaiMochi()
     /* Initialize Display controller */
     mDisplayController = DisplayHelper::createDisplayController(SCREEN_TYPE::SPI_OLED_128x64, settings);
 
-    /* Setup frames */
-    setupFrames();
-
     /* Setup touch sensor */
     TouchController::getInstance().initTouchPin(TOUCH_PIN);
     TouchController::getInstance().registerTouchEvent([this](TouchController::TOUCH_GESTURE guester)
     {
         this->onTouchEvent(guester);
     });
+
+    /* Initialize timer */
+    TimerController::getInstance().initTimer(TimerController::TIMER_ID::TIMER0, 100, ([this](TimerController::TIMER_ID timerId)
+    {
+        this->onTimerTimeout(timerId);
+    }));
 }
 
 void DasaiMochi::initProgram()
 {
+    /* Display something */
     mDisplayController->init();
     mDisplayController->clearDisplay();
     mDisplayController->setTextSize(2);
@@ -41,25 +45,14 @@ void DasaiMochi::initProgram()
     mDisplayController->setCursor(0, 0);
     mDisplayController->print("Hello");
     mDisplayController->display();
+
+    /* Start timer */
+    TimerController::getInstance().startTimer();
 }
 
 void DasaiMochi::runProgram()
 {
-    if(mCurrentDasaiMochiBitmap.empty() == false)
-    {
-        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
-        mDisplayController->clearDisplay();
-        mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
-        mDisplayController->display();
-    
-        // Small delay to control speed
-        delay(100);  // 100ms
-    }
-}
-
-void DasaiMochi::setupFrames()
-{
-    // mCurrentDasaiMochiBitmap = all_frames_01;
+    // delay(100);  // 100ms
 }
 
 void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
@@ -80,5 +73,28 @@ void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
             break;
         }
 
+    }
+}
+
+void DasaiMochi::onTimerTimeout(TimerController::TIMER_ID timerId)
+{
+    switch(timerId)
+    {
+        case TimerController::TIMER_ID::TIMER0:
+        {
+            if(mCurrentDasaiMochiBitmap.empty() == false)
+            {
+                mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
+                mDisplayController->clearDisplay();
+                mDisplayController->drawBitmap(0, 0, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex), 128, 64, SSD1306_WHITE);
+                mDisplayController->display();
+            }
+            break;
+        }
+    
+        default:
+        {
+            break;
+        }
     }
 }
