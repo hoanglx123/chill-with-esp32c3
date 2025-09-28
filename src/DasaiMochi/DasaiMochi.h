@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <IBaseProgram.h>
 #include <DisplayHelper.h>
 #include <TouchController.h>
@@ -8,18 +9,8 @@
 class DasaiMochi : public IBaseProgram
 {
 private:
-    enum ANIMATION_SPEED
-    {
-        SPEED_FAST = 50,
-        SPEED_MEDIUM = 100,
-        SPEED_SLOW = 200
-    };
-
-    enum ANIMATION_TYPE
-    {
-        ANIMATION_01 = 1,
-        ANIMATION_02 = 0,
-    };
+    using BUFFER_FRAME = std::vector<uint8_t>;
+    using ANIMATION_FRAMES = std::vector<BUFFER_FRAME>;
 
 public:
     DasaiMochi();
@@ -29,18 +20,22 @@ public:
     void runProgram() override;
 
 private:
+    static std::vector<ANIMATION_FRAMES> createAnimationsSet();
+
     void onTouchEvent(TouchController::TOUCH_GESTURE gesture);
     void onTimerTimeout(TimerController::TIMER_ID timerId);
 
 private:
     IDisplayController* mDisplayController;
     uint8_t             mCurrentFrameIndex = 0;
-    ANIMATION_TYPE      mAnimationType     = ANIMATION_01;
-
-    bool isChanged = false;
 
 private:
-    using BUFFER_FRAME = std::vector<uint8_t>;
+    /* Current nimation */
+    ANIMATION_FRAMES mCurrentDasaiMochiBitmap;
 
-    PROGMEM std::vector<BUFFER_FRAME> mCurrentDasaiMochiBitmap;
+    /* All animations */
+    PROGMEM std::vector<ANIMATION_FRAMES> mAllAnimations;
+
+private: 
+    static const uint8_t DISPLAY_FRAME_INTERVAL = 200U; /* ms */
 };

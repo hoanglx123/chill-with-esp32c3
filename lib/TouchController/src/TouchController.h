@@ -6,8 +6,6 @@
 class TouchController
 {
 public: 
-    static const unsigned long DEBOUNCE_DELAY = 50; /* ms */ 
-
     enum class TOUCH_STATE : uint8_t
     {
         IDLE = 0U,
@@ -54,6 +52,6 @@ private:
     TOUCH_GESTURE        mGesture      = TOUCH_GESTURE::NONE;
 
 private:
-    static const unsigned long DOUBLE_TAP_GAP = 300; /* ms */ 
+    static const unsigned long DOUBLE_TAP_GAP = 250; /* ms */ 
     static const unsigned long SINGLE_TAP_GAP = 300; /* ms */ 
 };

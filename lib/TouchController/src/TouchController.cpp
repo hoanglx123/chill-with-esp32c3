@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "TouchController.h"
 
+static const unsigned long DEBOUNCE_DELAY = 50; /* ms */ 
+
 volatile unsigned long gLastInterruptTime = 0;
 
 void IRAM_ATTR onTouchInterrupt() 
@@ -8,7 +10,7 @@ void IRAM_ATTR onTouchInterrupt()
     /* Get current time */
     const unsigned long currentTime = millis();
 
-    if(currentTime - gLastInterruptTime > TouchController::DEBOUNCE_DELAY)
+    if(currentTime - gLastInterruptTime > DEBOUNCE_DELAY)
     {     
         if(digitalRead(TouchController::getInstance().getPin()) == HIGH) 
         {

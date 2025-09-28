@@ -15,29 +15,9 @@ struct DISPLAY_SETTING_t
 class DisplayHelper
 {
 public:
-    static IDisplayController* createDisplayController(const SCREEN_TYPE type, DISPLAY_SETTING_t settings)
-    {
-        switch (type) 
-        {
-            case SCREEN_TYPE::SPI_OLED_128x64: 
-            {
-                return new SSD1306OledSPIController(settings.spiOledSettings);
-            }
+    static IDisplayController* createDisplayController(const SCREEN_TYPE type, DISPLAY_SETTING_t settings);
 
-            case SCREEN_TYPE::I2C_OLED_128x64:
-            {
-                return new SSD1306OledI2CController(settings.i2cSettings);
-            }
-            
-            case SCREEN_TYPE::SPI_TFT_160x80: 
-            {
-                return new ST7735TftSPIController(settings.spiTftSettings);
-            }
-            
-            default:
-            {
-                return nullptr;
-            }
-        }
-    }
+    /* Run length encoding/decoding */
+    static std::vector<uint8_t> compressRLE(const std::vector<uint8_t> rawInput);
+    static std::vector<uint8_t> decompressRLE(const std::vector<uint8_t> compressedInput);
 };

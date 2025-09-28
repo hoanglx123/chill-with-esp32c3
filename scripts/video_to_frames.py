@@ -142,16 +142,41 @@ class CommandHelper:
         return content
 
     @staticmethod
-    def save_file(out_path, buffer_array, buffer_list):
-        random_name = ""
-        for i in range(5):
-            random_name += chr(ord('a') + np.random.randint(0, 26))
+    def compressRLE(arr):
+        if not arr:
+            return []
 
-        c_file = Path(out_path) / f"frames_auto_generated_{random_name}.h"
+        compressed = []
+        prev = arr[0]
+        count = 1
+
+        for val in arr[1:]:
+            if val == prev and count < 255:
+                count += 1
+            else:
+                compressed.append((count, prev))
+                prev = val
+                count = 1
+        compressed.append((count, prev))
+
+        # Flatten the list
+        flat_compressed = []
+        for cnt, val in compressed:
+            flat_compressed.extend([cnt, val])
+        return flat_compressed 
+
+    @staticmethod
+    def save_file(file_name, out_path, buffer_array, buffer_list):
+        # random_name = ""
+        # for i in range(5):
+        #     random_name += chr(ord('a') + np.random.randint(0, 26))
+
+        # c_file = Path(out_path) / f"frames_auto_generated_{random_name}.h"
+        c_file = Path(out_path) / f"frames_auto_generated_{file_name}.h"
 
         # Generate content
         content = FRAME_CONTENT_TEMPLATE.substitute(
-            namespace= f"frame_{random_name}",
+            namespace= f"frame_{file_name}",
             buffer_list="\n\n".join(buffer_array),
             all_buffer_list=buffer_list,
         )
@@ -163,7 +188,7 @@ class CommandHelper:
     # Main extractor
     # ------------------------------
     @staticmethod
-    def extract_frames(video_path, out_path, fps, width, height, threshold, to_array, preview, invert):
+    def extract_frames(video_path, out_path, fps, width, height, threshold, to_array, preview, invert, is_compress):
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             print(f"❌ Error: Cannot open video {video_path}")
@@ -173,6 +198,9 @@ class CommandHelper:
         if os.path.exists(out_path):
             shutil.rmtree(out_path)
         os.makedirs(out_path, exist_ok=True)
+
+        # Get file name
+        file_name = os.path.splitext(os.path.basename(video_path))[0]
 
         video_fps = cap.get(cv2.CAP_PROP_FPS) or fps
         frame_interval = max(int(video_fps // fps), 1)
@@ -198,7 +226,13 @@ class CommandHelper:
                 CommandHelper.save_frame_png(binary, out_path, saved_count)
 
                 if to_array:
-                    arr = CommandHelper.frame_to_array(binary)
+                    arr = CommandHelper.frame_to_array(binary, invert)
+
+                    # Compress with RLE algorithm if needed
+                    if is_compress:
+                        arr = CommandHelper.compressRLE(arr)
+
+                    # Save as C array
                     array_name = f"frame_{saved_count:05d}_bitmap"
                     buffer_array.append(CommandHelper.generate_buffer_array(array_name, arr, width, height))
                     frame_names.append(array_name)
@@ -208,7 +242,7 @@ class CommandHelper:
             frame_count += 1
 
         # Save file
-        CommandHelper.save_file(out_path, buffer_array, CommandHelper.generate_all_list(frame_names))
+        CommandHelper.save_file(file_name, out_path, buffer_array, CommandHelper.generate_all_list(frame_names))
 
         cap.release()
         if preview:
@@ -234,6 +268,7 @@ class CommandHelper:
         parser.add_argument("--to-array", action="store_true", help="Convert frames to SSD1306 arrays")
         parser.add_argument("--preview", action="store_true", help="Preview binarized frames in a window")
         parser.add_argument("--invert", action="store_true", help="Invert colors (black ↔ white)")
+        parser.add_argument("--compress", action="store_false", help="Compress arrays with RLE")
         return parser.parse_args()
 
 
@@ -249,4 +284,5 @@ if __name__ == "__main__":
         args.to_array,
         args.preview,
         args.invert,
+        args.compress,
     )
