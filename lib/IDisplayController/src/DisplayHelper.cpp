@@ -26,7 +26,7 @@ IDisplayController* DisplayHelper::createDisplayController(const SCREEN_TYPE typ
     }
 }
 
-std::vector<uint8_t> DisplayHelper::compressRLE(const std::vector<uint8_t> rawInput)
+std::vector<uint8_t> DisplayHelper::compressRLE(const std::vector<uint8_t>& rawInput)
 {
     std::vector<uint8_t> output;
 
@@ -59,7 +59,7 @@ std::vector<uint8_t> DisplayHelper::compressRLE(const std::vector<uint8_t> rawIn
     return output;
 }
 
-std::vector<uint8_t> DisplayHelper::decompressRLE(const std::vector<uint8_t> compressedInput)
+std::vector<uint8_t> DisplayHelper::decompressRLE(const std::vector<uint8_t>& compressedInput)
 {
     std::vector<uint8_t> output;
 
@@ -78,6 +78,44 @@ std::vector<uint8_t> DisplayHelper::decompressRLE(const std::vector<uint8_t> com
                     output.push_back(value);
                 }
             }
+        }
+    }
+
+    return output;
+}
+
+std::vector<uint8_t> DisplayHelper::compressDelta(const std::vector<uint8_t>& previousFullFrame, const std::vector<uint8_t>& currentFullFrame)
+{
+    std::vector<uint8_t> output;
+
+    for (size_t i = 0; i < currentFullFrame.size(); ++i) 
+    {
+        if(currentFullFrame.at(i) != previousFullFrame.at(i))
+        {
+            /* Index (2 bytes), value (1 byte) */ 
+            output.push_back(static_cast<uint8_t>(i & 0xFF));
+            output.push_back(static_cast<uint8_t>((i >> 8) & 0xFF));
+            output.push_back(currentFullFrame.at(i));
+        }
+    }
+
+    return output;
+}
+
+std::vector<uint8_t> DisplayHelper::decompressDelta(const std::vector<uint8_t>& currentFullFrame, const std::vector<uint8_t>& nextCompressedFrame)
+{
+    std::vector<uint8_t> output = currentFullFrame;
+
+    for (size_t i = 0; i + 2 < nextCompressedFrame.size(); i += 3) 
+    {
+        /* Get position of compressed pixel */
+        uint16_t index = static_cast<uint16_t>(nextCompressedFrame.at(i)) | (static_cast<uint16_t>(nextCompressedFrame.at(i + 1)) << 8);
+        /* Get value of  compressed pixel */
+        uint8_t  value = nextCompressedFrame.at(i + 2);
+
+        if (index < output.size()) 
+        {
+            output.at(index) = value;
         }
     }
 

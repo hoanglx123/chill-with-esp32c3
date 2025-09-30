@@ -8,6 +8,7 @@ import numpy as np
 
 from string import Template
 from pathlib import Path
+from enum import Enum
 
 FRAME_CONTENT_TEMPLATE = Template("""
 // Auto-generated bitmaps for SSD1306
@@ -29,6 +30,11 @@ $all_buffer_list
 } /* End of namespace */
                         
 """)
+
+class CompressionType(Enum):
+    NONE = 0
+    RUN_LENGTH_ENCODING = 1  # Run-length encoding
+    DELTA_ENCODING = 2      # Delta encoding (not implemented)
 
 # Custom parser to show full help on error
 class SmartFormatter(argparse.ArgumentDefaultsHelpFormatter):
@@ -142,7 +148,7 @@ class CommandHelper:
         return content
 
     @staticmethod
-    def compressRLE(arr):
+    def compressWithRunLengthEncoding(arr):
         if not arr:
             return []
 
@@ -163,7 +169,19 @@ class CommandHelper:
         flat_compressed = []
         for cnt, val in compressed:
             flat_compressed.extend([cnt, val])
-        return flat_compressed 
+        return flat_compressed
+    
+    @staticmethod
+    def compressWithDeltaEncoding(current_frame, previous_frame):
+        if not current_frame or not previous_frame or len(current_frame) != len(previous_frame):
+            return []
+
+        compressed = []
+        for index in range(len(current_frame)):
+            if current_frame[index] != previous_frame[index]:
+                compressed.extend([index & 0xFF, (index >> 8) & 0xFF, current_frame[index]])
+
+        return compressed
 
     @staticmethod
     def save_file(file_name, out_path, buffer_array, buffer_list):
@@ -208,6 +226,8 @@ class CommandHelper:
         frame_count, saved_count = 0, 0
         frame_names = []
         buffer_array = []
+        current_arr = []
+        previous_arr = []
 
         while True:
             ret, frame = cap.read()
@@ -230,7 +250,18 @@ class CommandHelper:
 
                     # Compress with RLE algorithm if needed
                     if is_compress:
-                        arr = CommandHelper.compressRLE(arr)
+                        # Compress with delta encoding if not the first frame
+                        if saved_count > 0:
+                            # Compress with delta encoding
+                            current_arr = arr
+                            arr = CommandHelper.compressWithDeltaEncoding(current_arr, previous_arr)
+                            # Store current as previous for next frame
+                            previous_arr = current_arr
+
+                        # Compress with run-length encoding if first frame
+                        else:
+                            previous_arr = arr
+                            arr = CommandHelper.compressWithRunLengthEncoding(arr)
 
                     # Save as C array
                     array_name = f"frame_{saved_count:05d}_bitmap"

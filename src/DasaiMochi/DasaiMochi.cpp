@@ -3,8 +3,10 @@
 #include "DasaiMochi.h"
 
 // Auto-generated frames
+#include "frames_auto_generated_cell_0_1.h"
 #include "frames_auto_generated_cell_2_0.h"
 #include "frames_auto_generated_cell_2_1.h"
+// #include "frames_auto_generated_cell_3_0.h"
 
 DasaiMochi::DasaiMochi()
 {
@@ -43,7 +45,7 @@ void DasaiMochi::initProgram()
     mDisplayController->setTextSize(2);
     mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
     mDisplayController->setCursor(0, 0);
-    mDisplayController->print("Hello");
+    mDisplayController->print("Booting...");
     mDisplayController->display();
 
     delay(500);  // 500ms
@@ -66,15 +68,34 @@ void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
     {
         case TouchController::TOUCH_GESTURE::SINGLE_TAP: 
         {
+            mDisplayController->setTextSize(2);
+            mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
+            mDisplayController->setCursor(0, 0);
+            mDisplayController->display();
+            delay(500);  // 500ms
+
+            /* Update animation */
             mCurrentFrameIndex = 0;
-            mCurrentDasaiMochiBitmap = mAllAnimations.at(0);
+            mCurrentAnimationIndex = (mCurrentAnimationIndex + 1) % mAllAnimations.size();
+            mCurrentDasaiMochiBitmap = mAllAnimations.at(mCurrentAnimationIndex++);
             break;
         }
 
         case TouchController::TOUCH_GESTURE::DOUBLE_TAP:
         {
-            mCurrentFrameIndex = 0;
-            mCurrentDasaiMochiBitmap = mAllAnimations.at(1);
+            /* Stop timer */
+            TimerController::getInstance().stopTimer();
+
+            mDisplayController->clearDisplay();
+            mDisplayController->setTextSize(2);
+            mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
+            mDisplayController->setCursor(0, 0);
+            mDisplayController->print("Resetting ...");
+            mDisplayController->display();
+            delay(500);  // 500ms
+
+            /* Start timer */
+            TimerController::getInstance().startTimer();
             break;
         }
     }
@@ -88,15 +109,42 @@ void DasaiMochi::onTimerTimeout(TimerController::TIMER_ID timerId)
         {
             if(mCurrentDasaiMochiBitmap.empty() == false)
             {
+                std::vector<uint8_t> decompressedFrame;
+
                 /* Clear screen */
                 mDisplayController->clearDisplay();
                 
                 /* Display new frame */
-                mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mCurrentDasaiMochiBitmap.size();
-                const std::vector<uint8_t> decompressedFrame = DisplayHelper::decompressRLE(mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex));
-                // const std::vector<uint8_t> decompressedFrame = mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex);
-                mDisplayController->drawBitmap(0, 0, decompressedFrame, 128, 64, SSD1306_WHITE);
-                mDisplayController->display();
+                mCurrentFrameIndex = mCurrentFrameIndex % mCurrentDasaiMochiBitmap.size();
+                
+                if(mCurrentFrameIndex == 0)
+                {
+                    /* RLE decompress for first frame */
+                    decompressedFrame = DisplayHelper::decompressRLE(mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex));
+                }
+                else             
+                {
+                    /* Delta decompress with previous frame */ 
+                    decompressedFrame = DisplayHelper::decompressDelta(mCurrentFrameBuffer, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex));
+                }
+                
+                /* Store decompressed frame */
+                mCurrentFrameBuffer = decompressedFrame;
+                mCurrentFrameIndex++; 
+
+                /* Frame is valid */
+                if(decompressedFrame.empty() == false)
+                {
+                    /* Display frame */
+                    mDisplayController->drawBitmap(0, 0, decompressedFrame, 128, 64, SSD1306_WHITE);
+                    mDisplayController->display();
+                }
+            }
+            else
+            {
+                mCurrentFrameIndex = 0;
+                mCurrentAnimationIndex = 0;
+                mCurrentDasaiMochiBitmap = mAllAnimations.at(0);
             }
             break;
         }
@@ -112,26 +160,11 @@ std::vector<DasaiMochi::ANIMATION_FRAMES> DasaiMochi::createAnimationsSet()
 {
     const std::vector<ANIMATION_FRAMES> allRawAnimations
     {
+        frame_cell_0_1::all_frames,
         frame_cell_2_0::all_frames,
-        frame_cell_2_1::all_frames
+        frame_cell_2_1::all_frames,
+        // frame_cell_3_0::all_frames,
     };
     
     return allRawAnimations;
-
-    // std::vector<ANIMATION_FRAMES> allCompressedAnimations;
-    // for(const auto& animationTemp : allRawAnimations)
-    // {
-    //     /* All frames */
-    //     std::vector<BUFFER_FRAME> compressedFrames;
-    
-    //     /* Compress frames */
-    //     for(auto& frame : animationTemp)
-    //     {
-    //         compressedFrames.push_back(DisplayHelper::compressRLE(frame));
-    //     }
-
-    //     allCompressedAnimations.push_back(compressedFrames);
-    // }
-
-    // return allCompressedAnimations;
 }

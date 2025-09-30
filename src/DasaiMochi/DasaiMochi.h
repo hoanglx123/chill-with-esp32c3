@@ -27,15 +27,14 @@ private:
 
 private:
     IDisplayController* mDisplayController;
+    ANIMATION_FRAMES    mCurrentDasaiMochiBitmap;
+    BUFFER_FRAME        mCurrentFrameBuffer;
     uint8_t             mCurrentFrameIndex = 0;
-
-private:
-    /* Current nimation */
-    ANIMATION_FRAMES mCurrentDasaiMochiBitmap;
+    uint8_t             mCurrentAnimationIndex = 0;
 
     /* All animations */
     PROGMEM std::vector<ANIMATION_FRAMES> mAllAnimations;
 
 private: 
-    static const uint8_t DISPLAY_FRAME_INTERVAL = 200U; /* ms */
+    static const uint8_t DISPLAY_FRAME_INTERVAL = 100U; /* ms */
 };
