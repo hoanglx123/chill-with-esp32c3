@@ -11,10 +11,9 @@ from pathlib import Path
 from enum import Enum
 
 FRAME_CONTENT_TEMPLATE = Template("""
-// Auto-generated bitmaps for SSD1306
-                                  
-#include <vector>
-                                  
+#pragma once
+
+// Auto-generated bitmaps for SSD1306                       
 namespace $namespace {
 
 /************************************/
@@ -29,6 +28,19 @@ $all_buffer_list
                                                                     
 } /* End of namespace */
                         
+""")
+
+BUFFER_TEMPLATE = Template("""// Frame: $name ($width x $height) ~ $bytes bytes
+static const uint8_t $name[] PROGMEM = {
+$buffer
+};
+""")
+
+ALL_BUFFER_LIST_TEMPLATE = Template("""
+// List of all frame arrays
+static const FRAME_INFO_t all_frames[] PROGMEM = {
+    $all_buffer_list
+};
 """)
 
 class CompressionType(Enum):
@@ -123,29 +135,36 @@ class CommandHelper:
 
     @staticmethod
     def generate_buffer_array(name, arr, width, height):
-        content = f"// Frame: {name} ({width}x{height})\n"
-        content += f"static const std::vector<uint8_t> {name} = {{\n"
-
+        content = ""
         for i, val in enumerate(arr):
             if i % 16 == 0:
                 content += "    "
             content += f"0x{val:02X}, "
             if (i + 1) % 16 == 0:
                 content += "\n"
-        content += "};"
 
-        return content
+        content = BUFFER_TEMPLATE.substitute(
+            name=name,
+            buffer=content,
+            width=width,
+            height=height,
+            bytes=len(arr)
+        )
+
+        return content.rstrip("\n")
 
     @staticmethod
     def generate_all_list(frame_names):
-        content = "// List of all frame arrays\n"
-        content += "static const std::vector<std::vector<uint8_t>> all_frames = {\n"
+        all_buffer_list = []
+        for frame in frame_names:
+            all_buffer_list.append(f"{{ {frame[1]}, {frame[0]} }},\n")
 
-        for name in frame_names:
-            content += f"    {name},\n"
-        content += "};"
+        # Generate content
+        content = ALL_BUFFER_LIST_TEMPLATE.substitute(
+            all_buffer_list="\t".join(all_buffer_list)
+        )
 
-        return content
+        return content.rstrip("\n")
 
     @staticmethod
     def compressWithRunLengthEncoding(arr):
@@ -266,7 +285,7 @@ class CommandHelper:
                     # Save as C array
                     array_name = f"frame_{saved_count:05d}_bitmap"
                     buffer_array.append(CommandHelper.generate_buffer_array(array_name, arr, width, height))
-                    frame_names.append(array_name)
+                    frame_names.append((array_name, len(arr)))
 
                 saved_count += 1
 

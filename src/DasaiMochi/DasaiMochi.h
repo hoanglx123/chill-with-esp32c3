@@ -8,7 +8,7 @@
 
 class DasaiMochi : public IBaseProgram
 {
-private:
+public:
     using BUFFER_FRAME = std::vector<uint8_t>;
     using ANIMATION_FRAMES = std::vector<BUFFER_FRAME>;
 
@@ -20,21 +20,16 @@ public:
     void runProgram() override;
 
 private:
-    static std::vector<ANIMATION_FRAMES> createAnimationsSet();
-
     void onTouchEvent(TouchController::TOUCH_GESTURE gesture);
     void onTimerTimeout(TimerController::TIMER_ID timerId);
 
 private:
     IDisplayController* mDisplayController;
-    ANIMATION_FRAMES    mCurrentDasaiMochiBitmap;
     BUFFER_FRAME        mCurrentFrameBuffer;
-    uint8_t             mCurrentFrameIndex = 0;
-    uint8_t             mCurrentAnimationIndex = 0;
-
-    /* All animations */
-    PROGMEM std::vector<ANIMATION_FRAMES> mAllAnimations;
+    uint8_t             mCurrentFrameIndex     = 0;
+    uint8_t             mCurrentAnimationIndex = INVALID_INDEX;
 
 private: 
     static const uint8_t DISPLAY_FRAME_INTERVAL = 100U; /* ms */
+    static const uint8_t INVALID_INDEX          = 0xFF;
 };

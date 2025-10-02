@@ -90,6 +90,12 @@ struct SPI_FREQUENCY
     static const int32_t SPI_FREQUENCY_40MHZ = 40000000; // 40MHz
 };
 
+struct FRAME_INFO_t 
+{
+    const uint16_t bytes_per_bitmap;
+    const uint8_t* bitmap;
+};
+
 class IDisplayController
 {
 public:

@@ -3,10 +3,35 @@
 #include "DasaiMochi.h"
 
 // Auto-generated frames
+#include "frames_auto_generated_cell_0_0.h"
 #include "frames_auto_generated_cell_0_1.h"
 #include "frames_auto_generated_cell_2_0.h"
 #include "frames_auto_generated_cell_2_1.h"
-// #include "frames_auto_generated_cell_3_0.h"
+#include "frames_auto_generated_cell_3_0.h"
+#include "frames_auto_generated_cell_4_0.h"
+#include "frames_auto_generated_cell_4_1.h"
+
+const FRAME_INFO_t* gAllAnimations[] PROGMEM
+{
+    frame_cell_0_0::all_frames,
+    frame_cell_0_1::all_frames,
+    frame_cell_2_0::all_frames,
+    frame_cell_2_1::all_frames,
+    frame_cell_3_0::all_frames,
+    frame_cell_4_0::all_frames,
+    frame_cell_4_1::all_frames,
+};
+
+const uint16_t gAllAnimationsSize[] PROGMEM
+{
+    sizeof(frame_cell_0_0::all_frames) / sizeof(FRAME_INFO_t),
+    sizeof(frame_cell_0_1::all_frames) / sizeof(FRAME_INFO_t),
+    sizeof(frame_cell_2_0::all_frames) / sizeof(FRAME_INFO_t),
+    sizeof(frame_cell_2_1::all_frames) / sizeof(FRAME_INFO_t),
+    sizeof(frame_cell_3_0::all_frames) / sizeof(FRAME_INFO_t),
+    sizeof(frame_cell_4_0::all_frames) / sizeof(FRAME_INFO_t),
+    sizeof(frame_cell_4_1::all_frames) / sizeof(FRAME_INFO_t),
+};
 
 DasaiMochi::DasaiMochi()
 {
@@ -50,16 +75,13 @@ void DasaiMochi::initProgram()
 
     delay(500);  // 500ms
 
-    /* Initialize animations */
-    mAllAnimations = DasaiMochi::createAnimationsSet();
-
     /* Start timer */
     TimerController::getInstance().startTimer();
 }
 
 void DasaiMochi::runProgram()
 {
-    // delay(100);  // 100ms
+    /* Do nothing */
 }
 
 void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
@@ -72,12 +94,16 @@ void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
             mDisplayController->setTextColor(TEXT_COLOR::COLOR_WHITE);
             mDisplayController->setCursor(0, 0);
             mDisplayController->display();
-            delay(500);  // 500ms
+            delay(1000);  // 500ms
 
             /* Update animation */
             mCurrentFrameIndex = 0;
-            mCurrentAnimationIndex = (mCurrentAnimationIndex + 1) % mAllAnimations.size();
-            mCurrentDasaiMochiBitmap = mAllAnimations.at(mCurrentAnimationIndex++);
+            mCurrentAnimationIndex++;
+
+            if(mCurrentAnimationIndex >= sizeof(gAllAnimations) / sizeof(gAllAnimations[0]))
+            {
+                mCurrentAnimationIndex = 0;
+            }
             break;
         }
 
@@ -94,6 +120,8 @@ void DasaiMochi::onTouchEvent(TouchController::TOUCH_GESTURE gesture)
             mDisplayController->display();
             delay(500);  // 500ms
 
+            /* Clear animation index */
+            mCurrentAnimationIndex = INVALID_INDEX;
             /* Start timer */
             TimerController::getInstance().startTimer();
             break;
@@ -107,34 +135,40 @@ void DasaiMochi::onTimerTimeout(TimerController::TIMER_ID timerId)
     {
         case TimerController::TIMER_ID::TIMER0:
         {
-            if(mCurrentDasaiMochiBitmap.empty() == false)
+            if(mCurrentAnimationIndex != INVALID_INDEX)
             {
                 std::vector<uint8_t> decompressedFrame;
-
-                /* Clear screen */
-                mDisplayController->clearDisplay();
                 
                 /* Display new frame */
-                mCurrentFrameIndex = mCurrentFrameIndex % mCurrentDasaiMochiBitmap.size();
+                if(mCurrentFrameIndex >= gAllAnimationsSize[mCurrentAnimationIndex])
+                {
+                    mCurrentFrameIndex = 0;
+                }
                 
+                /* Get compressed frame */
+                std::vector<uint8_t> compressedFrame = std::vector<uint8_t>(gAllAnimations[mCurrentAnimationIndex][mCurrentFrameIndex].bytes_per_bitmap, 0);
+                memcpy_P(compressedFrame.data(), gAllAnimations[mCurrentAnimationIndex][mCurrentFrameIndex].bitmap, compressedFrame.size());
+
                 if(mCurrentFrameIndex == 0)
                 {
                     /* RLE decompress for first frame */
-                    decompressedFrame = DisplayHelper::decompressRLE(mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex));
+                    decompressedFrame = DisplayHelper::decompressRLE(compressedFrame);
                 }
                 else             
                 {
                     /* Delta decompress with previous frame */ 
-                    decompressedFrame = DisplayHelper::decompressDelta(mCurrentFrameBuffer, mCurrentDasaiMochiBitmap.at(mCurrentFrameIndex));
+                    decompressedFrame = DisplayHelper::decompressDelta(mCurrentFrameBuffer, compressedFrame);
                 }
                 
                 /* Store decompressed frame */
                 mCurrentFrameBuffer = decompressedFrame;
                 mCurrentFrameIndex++; 
-
+            
                 /* Frame is valid */
                 if(decompressedFrame.empty() == false)
                 {
+                    /* Clear screen */
+                    mDisplayController->clearDisplay();
                     /* Display frame */
                     mDisplayController->drawBitmap(0, 0, decompressedFrame, 128, 64, SSD1306_WHITE);
                     mDisplayController->display();
@@ -144,7 +178,6 @@ void DasaiMochi::onTimerTimeout(TimerController::TIMER_ID timerId)
             {
                 mCurrentFrameIndex = 0;
                 mCurrentAnimationIndex = 0;
-                mCurrentDasaiMochiBitmap = mAllAnimations.at(0);
             }
             break;
         }
@@ -154,17 +187,4 @@ void DasaiMochi::onTimerTimeout(TimerController::TIMER_ID timerId)
             break;
         }
     }
-}
-
-std::vector<DasaiMochi::ANIMATION_FRAMES> DasaiMochi::createAnimationsSet()
-{
-    const std::vector<ANIMATION_FRAMES> allRawAnimations
-    {
-        frame_cell_0_1::all_frames,
-        frame_cell_2_0::all_frames,
-        frame_cell_2_1::all_frames,
-        // frame_cell_3_0::all_frames,
-    };
-    
-    return allRawAnimations;
 }
